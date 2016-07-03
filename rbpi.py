@@ -24,11 +24,15 @@ class Singleton:
 class LED:
     _v = None
     _logLED = None
+    _LEDtable = None
     def __init__(self):
         self._v = False
         self._logLED = str(datetime.now()) + ' : ' + 'La led est éteinte'
+        f = open('LEDtable.html', 'r')
+        self._LEDtable = str(''.join(f.readlines()))
+        f.close()
     def value(self):
-        return self._v
+        return 'Allumée' if self._v else 'Eteinte'
     def log(self):
         return self._logLED
     def set(self, v2):
@@ -41,16 +45,12 @@ class LED:
             self._logLED = self._logLED + "<br/>" + str(datetime.now()) + ' : ' + "La led s'allume"
         else :
             self._logLED = self._logLED + "<br/>" + str(datetime.now()) + ' : ' + "La led s'éteint"
+    def showLEDtable(self):
+        return self._LEDtable.format("PIN?",self.value(),LED.Instance().log())
 
-@get('/') 
+@get('/')
 def index():
-    return '''
-        <form action="/refresh_index" method="post">
-            LED: %s<br/>
-            <input value="Reverse LED" type="submit" /><br/>
-            %s
-        </form>
-    ''' % (LED.Instance().value(), LED.Instance().log())
+    return LED.Instance().showLEDtable()
 
 @post('/refresh_index')
 def refresh_index():
@@ -61,4 +61,3 @@ def refresh_index():
 
 
 run(host='0.0.0.0', port=8080, debug=True)
-#test git
